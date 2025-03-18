@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{878D9EE4-4B3A-8B4E-BBC2-1F819B39D8E1}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "MMOCoreKit",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}

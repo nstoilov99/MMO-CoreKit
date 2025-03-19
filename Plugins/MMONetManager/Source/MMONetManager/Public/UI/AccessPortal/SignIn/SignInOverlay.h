@@ -6,7 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "SignInOverlay.generated.h"
 
-class USignInPageSteam;
+class USignUpPage;
+class USignInPage;
 class UWidgetSwitcher;
 /**
  * 
@@ -26,6 +27,13 @@ protected:
 
 private:
 
+	//TODO: Steam Login later
+	/*UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USignInPageSteam> SignInPageSteam;*/
+
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USignInPageSteam> SignInPageSteam;
+	TObjectPtr<USignInPage> SignInPage;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USignUpPage> SignUpPage;
 };

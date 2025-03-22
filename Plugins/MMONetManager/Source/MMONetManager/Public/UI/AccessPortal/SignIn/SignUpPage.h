@@ -37,20 +37,68 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Back;
 
+	/* 
+	 * ~Status Messages~
+	 */
+
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_StatusMessage;
+	TObjectPtr<UTextBlock> TextBlock_StatusMessageValidEmail;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessageValidUsername;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordHasNumber;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordLongEnough;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordSpecialChar;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordUppercase;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordLowercase;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordsMatch;
 
 	void ClearTextBoxes();
 
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Status Message")
+	FSlateColor StatusMessageErrorColor;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Status Message")
+	FSlateColor StatusMessageSuccessColor;
 
 	virtual void NativeConstruct() override;
 
 private:
 	
+	bool bIsValidUsername{false};
+	bool bIsStrongPassword{false};
+	bool bIsValidEmail{false};
+	bool bArePasswordsEqual{false};
+	
 	UFUNCTION()
-	void UpdateSignUpButtonState(const FText& Text);
+	void UpdateSignUpButtonState();
+	
+	UFUNCTION()
+	void UpdateStatusMessageUsername(const FText& Text);
+
+	UFUNCTION()
+	void UpdateStatusMessageEmail(const FText& Text);
+
+	UFUNCTION()
+	void UpdateStatusMessagePassword(const FText& Text);
+	
+	UFUNCTION()
+	void UpdateStatusMessageConfirmPassword(const FText& Text);
 	
 	bool IsValidEmail(const FString& Email);
-	bool IsStrongPassword(const FString& Password, FString& StatusMessage);
+	bool IsStrongPassword(const FString& Password);
 };

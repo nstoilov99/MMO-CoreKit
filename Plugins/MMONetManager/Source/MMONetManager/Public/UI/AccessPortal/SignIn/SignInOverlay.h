@@ -31,7 +31,7 @@ private:
 	/*UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USignInPageSteam> SignInPageSteam;*/
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY()
 	TObjectPtr<USignInPage> SignInPage;
 
 	UPROPERTY(meta = (BindWidget))

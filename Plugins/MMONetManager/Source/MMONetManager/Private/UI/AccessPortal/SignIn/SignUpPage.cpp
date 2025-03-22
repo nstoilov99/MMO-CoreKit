@@ -18,43 +18,83 @@ void USignUpPage::ClearTextBoxes()
 void USignUpPage::NativeConstruct()
 {
 	Super::NativeConstruct();
+	TextBlock_StatusMessagePasswordHasNumber->SetColorAndOpacity(StatusMessageErrorColor);
+	TextBlock_StatusMessagePasswordSpecialChar->SetColorAndOpacity(StatusMessageErrorColor);
+	TextBlock_StatusMessagePasswordUppercase->SetColorAndOpacity(StatusMessageErrorColor);
+	TextBlock_StatusMessagePasswordLowercase->SetColorAndOpacity(StatusMessageErrorColor);
+	
+	TextBox_Email->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessageEmail);
+	TextBox_UserName->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessageUsername);
+	TextBox_Password->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessagePassword);
+	TextBox_ConfirmPassword->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessageConfirmPassword);
+	Button_SignUp->SetIsEnabled(false);
 }
 
-void USignUpPage::UpdateSignUpButtonState(const FText& Text)
+void USignUpPage::UpdateSignUpButtonState()
 {
-	const bool bIsUsernameValid = !TextBox_UserName->GetText().ToString().IsEmpty();
-	const bool bArePasswordsEqual = TextBox_Password->GetText().ToString() == TextBox_ConfirmPassword->GetText().ToString();
-	const bool bIsValidEmail = IsValidEmail(TextBox_Email->GetText().ToString());
-	const bool bIsPasswordLongEnough = TextBox_Password->GetText().ToString().Len() >= 8;
+	Button_SignUp->SetIsEnabled(bIsValidUsername && bArePasswordsEqual && bIsValidEmail && bIsStrongPassword);
+}
 
-	FString StatusMessage;
-	const bool bIsStrongPassword = IsStrongPassword(TextBox_Password->GetText().ToString(), StatusMessage);
-	if (!bIsStrongPassword)
+void USignUpPage::UpdateStatusMessageUsername(const FText& Text)
+{
+	bIsValidUsername = TextBox_UserName->GetText().ToString().Len() >= 4;
+	if (bIsValidUsername)
 	{
-		TextBlock_StatusMessage->SetText(FText::FromString(StatusMessage));
-	}
-	else if (!bIsUsernameValid)
-	{
-		TextBlock_StatusMessage->SetText(FText::FromString(TEXT("Please enter a valid Username.")));
-	}
-	else if (!bArePasswordsEqual)
-	{
-		TextBlock_StatusMessage->SetText(FText::FromString(TEXT("Please ensure that passwords match.")));
-	}
-	else if (!bIsValidEmail)
-	{
-		TextBlock_StatusMessage->SetText(FText::FromString(TEXT("Please enter a valid email.")));
-	}
-	else if (!bIsPasswordLongEnough)
-	{
-		TextBlock_StatusMessage->SetText(FText::FromString(TEXT("Passwords must be at least 8 characters.")));
+		TextBlock_StatusMessageValidUsername->SetVisibility(ESlateVisibility::Collapsed);
+
+		//TODO: check if username already exists
 	}
 	else
 	{
-		TextBlock_StatusMessage->SetText(FText::GetEmpty());
+		TextBlock_StatusMessageValidUsername->SetVisibility(ESlateVisibility::Visible);
 	}
-	Button_SignUp->SetIsEnabled(bIsUsernameValid && bArePasswordsEqual && bIsValidEmail && bIsStrongPassword);
+	UpdateSignUpButtonState();
 }
+
+void USignUpPage::UpdateStatusMessageEmail(const FText& Text)
+{
+	bIsValidEmail = IsValidEmail(TextBox_Email->GetText().ToString());
+	if (bIsValidEmail)
+	{
+		TextBlock_StatusMessageValidEmail->SetVisibility(ESlateVisibility::Collapsed);
+		
+		//TODO: check if email already exists
+	}
+	else
+	{
+		TextBlock_StatusMessageValidEmail->SetVisibility(ESlateVisibility::Visible);
+	}
+	UpdateSignUpButtonState();
+}
+
+void USignUpPage::UpdateStatusMessagePassword(const FText& Text)
+{
+	const bool bIsPasswordLongEnough = TextBox_Password->GetText().ToString().Len() >= 8;
+	bIsStrongPassword = IsStrongPassword(TextBox_Password->GetText().ToString());
+	if (!bIsPasswordLongEnough)
+	{
+		TextBlock_StatusMessagePasswordLongEnough->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		TextBlock_StatusMessagePasswordLongEnough->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	UpdateSignUpButtonState();
+}
+void USignUpPage::UpdateStatusMessageConfirmPassword(const FText& Text)
+{
+	bArePasswordsEqual = TextBox_Password->GetText().ToString() == TextBox_ConfirmPassword->GetText().ToString();
+	if (!bArePasswordsEqual)
+	{
+		TextBlock_StatusMessagePasswordsMatch->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		TextBlock_StatusMessagePasswordsMatch->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	UpdateSignUpButtonState();
+}
+
 
 bool USignUpPage::IsValidEmail(const FString& Email)
 {
@@ -63,7 +103,7 @@ bool USignUpPage::IsValidEmail(const FString& Email)
 	return Matcher.FindNext();
 }
 
-bool USignUpPage::IsStrongPassword(const FString& Password, FString& StatusMessage)
+bool USignUpPage::IsStrongPassword(const FString& Password)
 {
 	const FRegexPattern NumberPattern(TEXT(R"(\d)")); // contains at least one number
 	const FRegexPattern SpecialCharPattern(TEXT(R"([^\w\s])")); // contains at least one special character
@@ -75,25 +115,47 @@ bool USignUpPage::IsStrongPassword(const FString& Password, FString& StatusMessa
 	FRegexMatcher UppercaseMatcher(UppercasePattern, Password);
 	FRegexMatcher LowercaseMatcher(LowercasePattern, Password);
 
-	if (!NumberMatcher.FindNext())
+	const bool bHasNumber = NumberMatcher.FindNext();
+	const bool bHasSpecialChar = SpecialCharMatcher.FindNext();
+	const bool bHasUppercase = UppercaseMatcher.FindNext();
+	const bool bHasLowercase = LowercaseMatcher.FindNext();
+
+	// Checks for number
+	if (!bHasNumber)
 	{
-		StatusMessage = TEXT("Password must contain at least 1 number.");
-		return false;
+		TextBlock_StatusMessagePasswordHasNumber->SetVisibility(ESlateVisibility::Visible);
 	}
-	if (!SpecialCharMatcher.FindNext())
+	else
 	{
-		StatusMessage = TEXT("Password must contain at least one special character.");
-		return false;
+		TextBlock_StatusMessagePasswordHasNumber->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	if (!UppercaseMatcher.FindNext())
+	//Checks for special character
+	if (!bHasSpecialChar)
 	{
-		StatusMessage = TEXT("Password must contain at least one uppercase character.");
-		return false;
+		TextBlock_StatusMessagePasswordSpecialChar->SetVisibility(ESlateVisibility::Visible);
 	}
-	if (!LowercaseMatcher.FindNext())
+	else
 	{
-		StatusMessage = TEXT("Password must contain at least one lowercase character.");
-		return false;
+		TextBlock_StatusMessagePasswordSpecialChar->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	return true;
+	//Checks for upper case
+	if (!bHasUppercase)
+	{
+		TextBlock_StatusMessagePasswordUppercase->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		TextBlock_StatusMessagePasswordUppercase->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	//Checks for lower case
+	if (!bHasLowercase)
+	{
+		TextBlock_StatusMessagePasswordLowercase->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		TextBlock_StatusMessagePasswordLowercase->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	return bHasNumber && bHasSpecialChar && bHasUppercase && bHasLowercase;
 }

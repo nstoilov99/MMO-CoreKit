@@ -1,7 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "APIData.h"
+#include "Data/API/APIData.h"
 
 FString UAPIData::GetAPIEndpoint(const FGameplayTag& APIEndpoint)
 {

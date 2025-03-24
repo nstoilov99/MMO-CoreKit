@@ -29,7 +29,8 @@ public class MMONetManager : ModuleRules
 				"GameLiftServerSDK",
 				"OnlineSubsystem",
 				"OnlineSubsystemSteam",
-				"GameplayTags"
+				"GameplayTags",
+				"HTTP"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

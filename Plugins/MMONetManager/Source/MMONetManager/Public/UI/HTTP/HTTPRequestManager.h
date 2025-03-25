@@ -13,7 +13,7 @@ class UAPIData;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class MMONETMANAGER_API UHTTPRequestManager : public UObject
 {
 	GENERATED_BODY()

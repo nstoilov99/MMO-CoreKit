@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SignInOverlay.generated.h"
 
+class UAccessPortalManager;
 class USignUpPage;
 class USignInPage;
 class UWidgetSwitcher;
@@ -18,6 +19,9 @@ class MMONETMANAGER_API USignInOverlay : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UAccessPortalManager> AccessPortalManagerClass;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
@@ -36,4 +40,10 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USignUpPage> SignUpPage;
+
+	UPROPERTY()
+	TObjectPtr<UAccessPortalManager> AccessPortalManager;
+
+	UFUNCTION()
+	void SignUpButtonClicked();
 };

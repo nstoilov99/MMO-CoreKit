@@ -74,6 +74,24 @@ void UAccessPortalManager::SignIn(const FString& Username, const FString& Passwo
 	Request->ProcessRequest();
 }
 
+void UAccessPortalManager::RefreshTokens(const FString& RefreshToken)
+{
+	check(APIData);
+	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &UAccessPortalManager::RefreshTokens_Response);
+	const FString APIUrl = APIData->GetAPIEndpoint(MMONetManagerTags::AccessPortalAPI::SignIn);
+	Request->SetURL(APIUrl);
+	Request->SetVerb(TEXT("POST"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	
+	TMap<FString, FString> Params = {
+		{ TEXT("refreshToken"), RefreshToken }
+	};
+	const FString Content = SerializeJsonContent(Params);
+	Request->SetContentAsString(Content);
+	Request->ProcessRequest();
+}
+
 void UAccessPortalManager::SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	TSharedPtr<FJsonObject> JsonObject;
@@ -95,9 +113,34 @@ void UAccessPortalManager::SignIn_Response(FHttpRequestPtr Request, FHttpRespons
 		UNetManagerLocalPlayerSubsystem* LocalPlayerSubsystem = GetNMLocalPlayerSubsystem();
 		if (IsValid(LocalPlayerSubsystem))
 		{
-			LocalPlayerSubsystem->InitializeTokens(InitiateAuthResponse.AuthenticationResult);
+			LocalPlayerSubsystem->InitializeTokens(InitiateAuthResponse.AuthenticationResult, this);
 			LocalPlayerSubsystem->Username = LastUsername;
 			LocalPlayerSubsystem->Email = InitiateAuthResponse.Email;
+		}
+	}
+}
+
+void UAccessPortalManager::RefreshTokens_Response(FHttpRequestPtr Request, FHttpResponsePtr Response,
+	bool bWasSuccessful)
+{
+	if (!bWasSuccessful) return;
+
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+	{
+		if (ContainsErrors(JsonObject)) return;
+
+		FNMInitiateAuthResponse InitiateAuthResponse;
+		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &InitiateAuthResponse);
+
+		UNetManagerLocalPlayerSubsystem* LocalPlayerSubsystem = GetNMLocalPlayerSubsystem();
+		if (IsValid(LocalPlayerSubsystem))
+		{
+			LocalPlayerSubsystem->UpdateTokens(
+				InitiateAuthResponse.AuthenticationResult.AccessToken,
+				InitiateAuthResponse.AuthenticationResult.IdToken
+				);
 		}
 	}
 }

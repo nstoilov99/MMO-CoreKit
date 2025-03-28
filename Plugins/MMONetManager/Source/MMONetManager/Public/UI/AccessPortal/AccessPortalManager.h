@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interfaces/AccessPortalManagement.h"
 #include "Interfaces/IHttpRequest.h"
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "UI/HTTP/HTTPRequestTypes.h"
@@ -12,7 +13,7 @@
  * 
  */
 UCLASS()
-class MMONETMANAGER_API UAccessPortalManager : public UHTTPRequestManager
+class MMONETMANAGER_API UAccessPortalManager : public UHTTPRequestManager, public IAccessPortalManagement
 {
 	GENERATED_BODY()
 
@@ -36,9 +37,15 @@ public:
 	void SignUp(const FString& Username, const FString& Password, const FString& Email);
 
 	void SignIn(const FString& Username, const FString& Password);
+
+
+	// IAccessPortalManagement
+	virtual void RefreshTokens(const FString& RefreshToken) override;
 private:
 
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	void SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	void RefreshTokens_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

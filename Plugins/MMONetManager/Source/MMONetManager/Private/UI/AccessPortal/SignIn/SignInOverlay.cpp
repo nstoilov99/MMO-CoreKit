@@ -5,7 +5,10 @@
 
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
+#include "Components/WidgetSwitcher.h"
+#include "Player/NetManagerLocalPlayerSubsystem.h"
 #include "UI/AccessPortal/AccessPortalManager.h"
+#include "UI/AccessPortal/SignIn/SignInPage.h"
 #include "UI/AccessPortal/SignIn/SignUpPage.h"
 
 void USignInOverlay::NativeConstruct()
@@ -14,7 +17,12 @@ void USignInOverlay::NativeConstruct()
 
 	AccessPortalManager = NewObject<UAccessPortalManager>(this, AccessPortalManagerClass);
 
+	SignInPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
+	SignInPage->Button_SignIn->OnClicked.AddDynamic(this, &USignInOverlay::SignInButtonClicked);
+
 	SignUpPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::SignUpButtonClicked);
+	SignUpPage->Button_Back->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
+	ShowSignInPage();
 }
 
 void USignInOverlay::SignUpButtonClicked()
@@ -23,4 +31,22 @@ void USignInOverlay::SignUpButtonClicked()
 	const FString Password = SignUpPage->TextBox_Password->GetText().ToString();
 	const FString Email = SignUpPage->TextBox_Email->GetText().ToString();
 	AccessPortalManager->SignUp(Username, Password, Email);
+}
+
+void USignInOverlay::SignInButtonClicked()
+{
+	const FString Username = SignInPage->TextBox_UserName->GetText().ToString();
+	const FString Password = SignInPage->TextBox_Password->GetText().ToString();
+
+	AccessPortalManager->SignIn(Username, Password);
+}
+
+void USignInOverlay::ShowSignInPage()
+{
+	WidgetSwitcher->SetActiveWidget(SignInPage);
+}
+
+void USignInOverlay::ShowSignUpPage()
+{
+	WidgetSwitcher->SetActiveWidget(SignUpPage);
 }

@@ -28,7 +28,7 @@ struct FNMMetaData
 };
 
 USTRUCT()
-struct FDSCodeDeliveryDetails
+struct FNMCodeDeliveryDetails
 {
 	GENERATED_BODY()
 
@@ -45,18 +45,93 @@ struct FDSCodeDeliveryDetails
 };
 
 USTRUCT()
-struct FDSSignUpResponse
+struct FNMSignUpResponse
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FDSCodeDeliveryDetails CodeDeliveryDetails{};
+	FNMCodeDeliveryDetails CodeDeliveryDetails{};
 
 	UPROPERTY()
 	bool UserConfirmed{};
 
 	UPROPERTY()
 	FString UserSub{};
+
+	void Dump() const;
+};
+
+USTRUCT()
+struct FNMNewDeviceMetaData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString DeviceGroupKey{};
+
+	UPROPERTY()
+	FString DeviceKey{};
+
+	void Dump() const;
+};
+
+USTRUCT()
+struct FNMAuthenticationResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString AccessToken{};
+
+	UPROPERTY()
+	int32 ExpiresIn{};
+
+	UPROPERTY()
+	FString IdToken{};
+
+	UPROPERTY()
+	FNMNewDeviceMetaData NewDeviceMetadata{};
+
+	UPROPERTY()
+	FString RefreshToken{};
+
+	UPROPERTY()
+	FString TokenType{};
+
+	void Dump() const;
+};
+
+// ChallengeParameters struct
+USTRUCT()
+struct FNMChallengeParameters
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<FString, FString> Parameters{};
+
+	void Dump() const;
+};
+
+USTRUCT()
+struct FNMInitiateAuthResponse
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FNMAuthenticationResult AuthenticationResult{};
+
+	UPROPERTY()
+	FString ChallengeName{};
+
+	UPROPERTY()
+	FNMChallengeParameters ChallengeParameters{};
+
+	UPROPERTY()
+	FString Session{};
+
+	UPROPERTY()
+	FString Email{};
 
 	void Dump() const;
 };

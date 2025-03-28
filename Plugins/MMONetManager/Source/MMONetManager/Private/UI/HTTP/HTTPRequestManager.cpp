@@ -5,9 +5,23 @@
 
 #include "JsonObjectConverter.h"
 #include "UI/HTTP/HTTPRequestTypes.h"
-
+#include "Player/NetManagerLocalPlayerSubsystem.h"
 #include "MMONetManager/MMONetManager.h"
 
+
+UNetManagerLocalPlayerSubsystem* UHTTPRequestManager::GetNMLocalPlayerSubsystem() const
+{
+	APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld());
+	if (IsValid(LocalPlayerController))
+	{
+		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(LocalPlayerController->GetLocalPlayer());
+		if (IsValid(LocalPlayer))
+		{
+			return LocalPlayer->GetSubsystem<UNetManagerLocalPlayerSubsystem>();
+		}
+	}
+	return nullptr;
+}
 
 // TODO: Make better error handling 
 bool UHTTPRequestManager::ContainsErrors(TSharedPtr<FJsonObject> JsonObject)

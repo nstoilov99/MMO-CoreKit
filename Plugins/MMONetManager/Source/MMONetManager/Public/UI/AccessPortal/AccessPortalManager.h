@@ -20,16 +20,25 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FAPIStatusMessage SignUpStatusMessageDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FAPIStatusMessage SignInStatusMessageDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnSignUpSucceeded;
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnAPIRequestSucceeded OnSignInSucceeded;
+	
 	FString LastUsername;
-	FDSSignUpResponse LastSignUpResponse;
+	FNMSignUpResponse LastSignUpResponse;
 
 	void SignUp(const FString& Username, const FString& Password, const FString& Email);
 
+	void SignIn(const FString& Username, const FString& Password);
 private:
 
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	void SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

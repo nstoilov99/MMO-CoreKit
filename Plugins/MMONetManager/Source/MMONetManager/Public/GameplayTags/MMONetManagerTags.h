@@ -10,5 +10,6 @@ namespace MMONetManagerTags
 	namespace AccessPortalAPI
 	{
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(SignUp);
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(SignIn);
 	}
 }

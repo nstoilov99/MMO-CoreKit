@@ -30,11 +30,5 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_SignUp;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_Quit;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_StatusMessage;
 	
 };

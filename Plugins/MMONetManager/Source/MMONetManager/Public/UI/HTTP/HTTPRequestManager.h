@@ -10,6 +10,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAPIStatusMessage, const FString&, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAPIRequestSucceeded);
 
 class UAPIData;
+class UNetManagerLocalPlayerSubsystem;
 /**
  * 
  */
@@ -17,7 +18,10 @@ UCLASS(Blueprintable)
 class MMONETMANAGER_API UHTTPRequestManager : public UObject
 {
 	GENERATED_BODY()
+	
 public:
+	UNetManagerLocalPlayerSubsystem* GetNMLocalPlayerSubsystem() const;
+protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAPIData> APIData;

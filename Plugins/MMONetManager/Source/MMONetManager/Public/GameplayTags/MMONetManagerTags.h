@@ -11,5 +11,6 @@ namespace MMONetManagerTags
 	{
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(SignUp);
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(SignIn);
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(UniqueUsername_Email);
 	}
 }

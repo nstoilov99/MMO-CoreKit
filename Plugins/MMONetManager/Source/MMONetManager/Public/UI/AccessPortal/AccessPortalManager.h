@@ -22,6 +22,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FAPIStatusMessage SignUpStatusMessageDelegate;
 
+
 	UPROPERTY(BlueprintAssignable)
 	FAPIStatusMessage SignInStatusMessageDelegate;
 	
@@ -31,6 +32,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnSignInSucceeded;
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnFieldChecked OnFieldCheckedUniqueUsername;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnFieldChecked OnFieldCheckedUniqueEmail;
+	
 	FString LastUsername;
 	FNMSignUpResponse LastSignUpResponse;
 
@@ -38,7 +45,9 @@ public:
 
 	void SignIn(const FString& Username, const FString& Password);
 
+	void UniqueEmail(const FString& Email);
 
+	void UniqueUsername(const FString& Username);
 	// IAccessPortalManagement
 	virtual void RefreshTokens(const FString& RefreshToken) override;
 private:
@@ -48,4 +57,8 @@ private:
 	void SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	void RefreshTokens_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	void UniqueEmail_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	void UniqueUsername_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

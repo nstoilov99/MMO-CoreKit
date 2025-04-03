@@ -7,6 +7,7 @@
 #include "SignUpPage.generated.h"
 
 class UEditableTextBox;
+class UAccessPortalManager;
 class UButton;
 class UTextBlock;
 /**
@@ -65,6 +66,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_StatusMessagePasswordsMatch;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UAccessPortalManager> AccessPortalManagerClass;
+
 	void ClearTextBoxes();
 
 protected:
@@ -80,18 +84,35 @@ protected:
 private:
 	
 	bool bIsValidUsername{false};
-	bool bIsStrongPassword{false};
+	bool bIsUniqueUsername{false};
 	bool bIsValidEmail{false};
+	bool bIsUniqueEmail{false};
+	bool bIsStrongPassword{false};
 	bool bArePasswordsEqual{false};
+
+	UPROPERTY()
+	TObjectPtr<UAccessPortalManager> AccessPortalManager;
 	
 	UFUNCTION()
 	void UpdateSignUpButtonState();
 	
 	UFUNCTION()
 	void UpdateStatusMessageUsername(const FText& Text);
+	
+	UFUNCTION()
+	void OnUsernameCommitted(const FText& Text, ETextCommit::Type CommitType);
+	
+	UFUNCTION()
+	void OnCheckUsernameUnique(bool bIsUnique);
 
 	UFUNCTION()
 	void UpdateStatusMessageEmail(const FText& Text);
+	
+	UFUNCTION()
+	void OnEmailCommitted(const FText& Text, ETextCommit::Type CommitType);
+	
+	UFUNCTION()
+	void OnCheckEmailUnique(bool bIsUnique);
 
 	UFUNCTION()
 	void UpdateStatusMessagePassword(const FText& Text);
@@ -100,5 +121,8 @@ private:
 	void UpdateStatusMessageConfirmPassword(const FText& Text);
 	
 	bool IsValidEmail(const FString& Email);
+	
 	bool IsStrongPassword(const FString& Password);
 };
+
+

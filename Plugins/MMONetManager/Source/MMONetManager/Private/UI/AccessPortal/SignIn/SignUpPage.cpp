@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
+#include "UI/AccessPortal/AccessPortalManager.h"
 
 void USignUpPage::ClearTextBoxes()
 {
@@ -18,13 +19,20 @@ void USignUpPage::ClearTextBoxes()
 void USignUpPage::NativeConstruct()
 {
 	Super::NativeConstruct();
+	AccessPortalManager = NewObject<UAccessPortalManager>(this, AccessPortalManagerClass);
+
+	AccessPortalManager->OnFieldCheckedUniqueEmail.AddDynamic(this, &USignUpPage::OnCheckEmailUnique);
+	AccessPortalManager->OnFieldCheckedUniqueUsername.AddDynamic(this, &USignUpPage::OnCheckUsernameUnique);
+	
 	TextBlock_StatusMessagePasswordHasNumber->SetColorAndOpacity(StatusMessageErrorColor);
 	TextBlock_StatusMessagePasswordSpecialChar->SetColorAndOpacity(StatusMessageErrorColor);
 	TextBlock_StatusMessagePasswordUppercase->SetColorAndOpacity(StatusMessageErrorColor);
 	TextBlock_StatusMessagePasswordLowercase->SetColorAndOpacity(StatusMessageErrorColor);
 	
 	TextBox_Email->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessageEmail);
+	TextBox_Email->OnTextCommitted.AddDynamic(this, &USignUpPage::OnEmailCommitted);
 	TextBox_UserName->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessageUsername);
+	TextBox_UserName->OnTextCommitted.AddDynamic(this, &USignUpPage::OnUsernameCommitted);
 	TextBox_Password->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessagePassword);
 	TextBox_ConfirmPassword->OnTextChanged.AddDynamic(this, &USignUpPage::UpdateStatusMessageConfirmPassword);
 	Button_SignUp->SetIsEnabled(false);
@@ -32,7 +40,7 @@ void USignUpPage::NativeConstruct()
 
 void USignUpPage::UpdateSignUpButtonState()
 {
-	Button_SignUp->SetIsEnabled(bIsValidUsername && bArePasswordsEqual && bIsValidEmail && bIsStrongPassword);
+	Button_SignUp->SetIsEnabled(bIsValidUsername && bIsUniqueUsername && bArePasswordsEqual && bIsValidEmail && bIsUniqueEmail && bIsStrongPassword);
 }
 
 void USignUpPage::UpdateStatusMessageUsername(const FText& Text)
@@ -47,6 +55,30 @@ void USignUpPage::UpdateStatusMessageUsername(const FText& Text)
 	else
 	{
 		TextBlock_StatusMessageValidUsername->SetVisibility(ESlateVisibility::Visible);
+		TextBlock_StatusMessageValidUsername->SetText(FText::FromString(TEXT("Username must be 4 characters long.")));
+	}
+	UpdateSignUpButtonState();
+}
+
+void USignUpPage::OnUsernameCommitted(const FText& Text, ETextCommit::Type CommitType)
+{
+	if (CommitType != ETextCommit::OnCleared && bIsValidUsername)
+	{
+		AccessPortalManager->UniqueUsername(TextBox_UserName->GetText().ToString());
+	}
+}
+
+void USignUpPage::OnCheckUsernameUnique(bool bIsUnique)
+{
+	bIsUniqueUsername = bIsUnique;
+	if (bIsUniqueUsername)
+	{
+		TextBlock_StatusMessageValidUsername->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		TextBlock_StatusMessageValidUsername->SetVisibility(ESlateVisibility::Visible);
+		TextBlock_StatusMessageValidUsername->SetText(FText::FromString(TEXT("Username is already in use.")));
 	}
 	UpdateSignUpButtonState();
 }
@@ -57,12 +89,34 @@ void USignUpPage::UpdateStatusMessageEmail(const FText& Text)
 	if (bIsValidEmail)
 	{
 		TextBlock_StatusMessageValidEmail->SetVisibility(ESlateVisibility::Collapsed);
-		
-		//TODO: check if email already exists
 	}
 	else
 	{
 		TextBlock_StatusMessageValidEmail->SetVisibility(ESlateVisibility::Visible);
+		TextBlock_StatusMessageValidEmail->SetText(FText::FromString(TEXT("Please enter a valid email.")));
+	}
+	UpdateSignUpButtonState();
+}
+
+void USignUpPage::OnEmailCommitted(const FText& Text, ETextCommit::Type CommitType)
+{
+	if (CommitType != ETextCommit::OnCleared && bIsValidEmail)
+	{
+		AccessPortalManager->UniqueEmail(TextBox_Email->GetText().ToString());
+	}
+}
+
+void USignUpPage::OnCheckEmailUnique(bool bIsUnique)
+{
+	bIsUniqueEmail = bIsUnique;
+	if (bIsUniqueEmail)
+	{
+		TextBlock_StatusMessageValidEmail->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		TextBlock_StatusMessageValidEmail->SetVisibility(ESlateVisibility::Visible);
+		TextBlock_StatusMessageValidEmail->SetText(FText::FromString(TEXT("Email is already in use.")));
 	}
 	UpdateSignUpButtonState();
 }

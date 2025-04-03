@@ -9,5 +9,6 @@ namespace MMONetManagerTags
 	{
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(SignUp, "MMONetManagerTags.AccessPortalAPI.SignUp", "Registers new User in the Access Portal API")
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(SignIn, "MMONetManagerTags.AccessPortalAPI.SignIn", "Retrieves Access Token & Id Token and Refresh Token Access Portal API")
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(UniqueUsername_Email, "MMONetManagerTags.AccessPortalAPI.UniqueUsername_Email", "Checks if Email or Username isn't already in use")
 	}
 }

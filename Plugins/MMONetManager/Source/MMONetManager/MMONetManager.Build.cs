@@ -26,7 +26,6 @@ public class MMONetManager : ModuleRules
 			new string[]
 			{
 				"Core",
-				"GameLiftServerSDK",
 				"OnlineSubsystem",
 				"OnlineSubsystemSteam",
 				"GameplayTags",
@@ -44,6 +43,7 @@ public class MMONetManager : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UMG",
+				"PlayFab", "PlayFabCpp", "PlayFabCommon",
 				"Json",
 				"JsonUtilities"
 				// ... add private dependencies that you statically link with here ...	

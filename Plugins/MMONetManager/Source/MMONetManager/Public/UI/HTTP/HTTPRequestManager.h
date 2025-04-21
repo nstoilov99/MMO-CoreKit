@@ -6,8 +6,8 @@
 #include "UObject/Object.h"
 #include "HTTPRequestManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAPIStatusMessage, const FString&, StatusMessage, bool, bShouldResetWidgets);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFieldChecked, bool, bIsUnique);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAPIStatusLogMessage, const FString&, StatusMessage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAPIErrorMessagePopup, const FString&, StatusMessage, bool, bShouldResetWidgets);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAPIRequestSucceeded);
 
 class UAPIData;

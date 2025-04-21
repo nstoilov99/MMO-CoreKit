@@ -20,19 +20,19 @@ class MMONETMANAGER_API USignUpPage : public UUserWidget
 
 public:
 	
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> TextBox_UserName;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> TextBox_Password;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> TextBox_ConfirmPassword;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> TextBox_Email;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UButton> Button_SignUp;
 
 	UPROPERTY(meta = (BindWidget))
@@ -84,35 +84,18 @@ protected:
 private:
 	
 	bool bIsValidUsername{false};
-	bool bIsUniqueUsername{false};
 	bool bIsValidEmail{false};
-	bool bIsUniqueEmail{false};
 	bool bIsStrongPassword{false};
 	bool bArePasswordsEqual{false};
-
-	UPROPERTY()
-	TObjectPtr<UAccessPortalManager> AccessPortalManager;
 	
 	UFUNCTION()
 	void UpdateSignUpButtonState();
 	
 	UFUNCTION()
 	void UpdateStatusMessageUsername(const FText& Text);
-	
-	UFUNCTION()
-	void OnUsernameCommitted(const FText& Text, ETextCommit::Type CommitType);
-	
-	UFUNCTION()
-	void OnCheckUsernameUnique(bool bIsUnique);
 
 	UFUNCTION()
 	void UpdateStatusMessageEmail(const FText& Text);
-	
-	UFUNCTION()
-	void OnEmailCommitted(const FText& Text, ETextCommit::Type CommitType);
-	
-	UFUNCTION()
-	void OnCheckEmailUnique(bool bIsUnique);
 
 	UFUNCTION()
 	void UpdateStatusMessagePassword(const FText& Text);

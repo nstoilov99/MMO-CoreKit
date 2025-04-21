@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SignInOverlay.generated.h"
 
+class UStatusLogWidget;
 class UAccessPortalManager;
 class USignUpPage;
 class USignInPage;
@@ -35,17 +36,23 @@ private:
 	/*UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USignInPageSteam> SignInPageSteam;*/
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USignInPage> SignInPage;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USignUpPage> SignUpPage;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStatusLogWidget> StatusLog;
 
 	UPROPERTY()
 	TObjectPtr<UAccessPortalManager> AccessPortalManager;
 
 	UFUNCTION()
 	void SignUpButtonClicked();
+
+	UFUNCTION()
+	void SignUpStatusMessage(const FString& StatusMessage);
 	
 	UFUNCTION()
 	void SignInButtonClicked();

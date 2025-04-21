@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayFabClientAPI.h"
 #include "Interfaces/AccessPortalManagement.h"
 #include "Interfaces/IHttpRequest.h"
 #include "UI/HTTP/HTTPRequestManager.h"
@@ -20,11 +21,13 @@ class MMONETMANAGER_API UAccessPortalManager : public UHTTPRequestManager, publi
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	FAPIStatusMessage SignUpStatusMessageDelegate;
-
+	FAPIStatusLogMessage SignUpStatusMessageDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FAPIStatusMessage SignInStatusMessageDelegate;
+	FAPIErrorMessagePopup SignUpErrorMessagePopupDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FAPIStatusLogMessage SignInStatusMessageDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnSignUpSucceeded;
@@ -32,33 +35,32 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnSignInSucceeded;
 	
-	UPROPERTY(BlueprintAssignable)
-	FOnFieldChecked OnFieldCheckedUniqueUsername;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnFieldChecked OnFieldCheckedUniqueEmail;
-	
 	FString LastUsername;
 	FNMSignUpResponse LastSignUpResponse;
 
 	void SignUp(const FString& Username, const FString& Password, const FString& Email);
+	void PlayFabSignUp(const FString& Username, const FString& Password, const FString& Email);
+
+	UFUNCTION()
+	void OnRegisterSuccessCallback(FClientRegisterPlayFabUserResult Result, UObject* CustomData);
+	
+	UFUNCTION()
+	void OnRegisterErrorCallback(FPlayFabError Error, UObject* CustomData);
 
 	void SignIn(const FString& Username, const FString& Password);
 
-	void UniqueEmail(const FString& Email);
-
-	void UniqueUsername(const FString& Username);
 	// IAccessPortalManagement
 	virtual void RefreshTokens(const FString& RefreshToken) override;
 private:
+	
+	UPROPERTY()
+	TObjectPtr<UPlayFabClientAPI> PlayFabClientAPI;
+
+	FString ContactEmail{};
 
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	void SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	void RefreshTokens_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-
-	void UniqueEmail_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-
-	void UniqueUsername_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

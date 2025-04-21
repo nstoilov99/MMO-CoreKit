@@ -29,7 +29,9 @@ public class MMONetManager : ModuleRules
 				"OnlineSubsystem",
 				"OnlineSubsystemSteam",
 				"GameplayTags",
-				"HTTP"
+				"HTTP", 
+				"PlayFab",
+				"PlayFabCpp"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -43,7 +45,7 @@ public class MMONetManager : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UMG",
-				"PlayFab", "PlayFabCpp", "PlayFabCommon",
+				"PlayFab", "PlayFabCommon",
 				"Json",
 				"JsonUtilities"
 				// ... add private dependencies that you statically link with here ...	

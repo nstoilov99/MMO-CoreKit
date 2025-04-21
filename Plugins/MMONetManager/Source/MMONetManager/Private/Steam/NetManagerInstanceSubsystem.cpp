@@ -1,12 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Steam/SteamInstanceSubsystem.h"
+#include "Steam/NetManagerInstanceSubsystem.h"
 
 #include "OnlineSubsystem.h"
+#include "PlayFabRuntimeSettings.h"
+#include "PlayFabSettings.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 
-USteamInstanceSubsystem::USteamInstanceSubsystem()
+UNetManagerInstanceSubsystem::UNetManagerInstanceSubsystem()
 {
 	if (IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get())
 	{
@@ -21,9 +23,10 @@ USteamInstanceSubsystem::USteamInstanceSubsystem()
 			}
 		}
 	}
+	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("1622B3");
 }
 
-FString USteamInstanceSubsystem::GetSteamUsername() const
+FString UNetManagerInstanceSubsystem::GetSteamUsername() const
 {
 	if (!IdentityInterface.IsValid())
 	{

@@ -5,18 +5,18 @@
 #include "CoreMinimal.h"
 #include "OnlineSubsystem.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "SteamInstanceSubsystem.generated.h"
+#include "NetManagerInstanceSubsystem.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class MMONETMANAGER_API USteamInstanceSubsystem : public UGameInstanceSubsystem
+class MMONETMANAGER_API UNetManagerInstanceSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	USteamInstanceSubsystem();
+	UNetManagerInstanceSubsystem();
 
 	UFUNCTION(BlueprintCallable)
 	FString GetSteamUsername() const;

@@ -8,6 +8,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Player/NetManagerLocalPlayerSubsystem.h"
 #include "UI/AccessPortal/AccessPortalManager.h"
+#include "UI/AccessPortal/Shared/StatusLogWidget.h"
 #include "UI/AccessPortal/SignIn/SignInPage.h"
 #include "UI/AccessPortal/SignIn/SignUpPage.h"
 
@@ -16,6 +17,7 @@ void USignInOverlay::NativeConstruct()
 	Super::NativeConstruct();
 
 	AccessPortalManager = NewObject<UAccessPortalManager>(this, AccessPortalManagerClass);
+	AccessPortalManager->SignUpStatusMessageDelegate.AddDynamic(this, &USignInOverlay::SignUpStatusMessage);
 
 	SignInPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
 	SignInPage->Button_SignIn->OnClicked.AddDynamic(this, &USignInOverlay::SignInButtonClicked);
@@ -30,7 +32,12 @@ void USignInOverlay::SignUpButtonClicked()
 	const FString Username = SignUpPage->TextBox_UserName->GetText().ToString();
 	const FString Password = SignUpPage->TextBox_Password->GetText().ToString();
 	const FString Email = SignUpPage->TextBox_Email->GetText().ToString();
-	AccessPortalManager->SignUp(Username, Password, Email);
+	AccessPortalManager->PlayFabSignUp(Username, Password, Email);
+}
+
+void USignInOverlay::SignUpStatusMessage(const FString& StatusMessage)
+{
+	StatusLog->AddStatusMessage(StatusMessage);
 }
 
 void USignInOverlay::SignInButtonClicked()

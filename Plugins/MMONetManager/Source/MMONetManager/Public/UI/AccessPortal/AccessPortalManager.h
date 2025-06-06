@@ -31,6 +31,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnSignUpSucceeded;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAPIRequestSucceeded OnUpdateContactEmailSucceeded;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnSignInSucceeded;
@@ -41,11 +44,6 @@ public:
 	void SignUp(const FString& Username, const FString& Password, const FString& Email);
 	void PlayFabSignUp(const FString& Username, const FString& Password, const FString& Email);
 
-	UFUNCTION()
-	void OnRegisterSuccessCallback(FClientRegisterPlayFabUserResult Result, UObject* CustomData);
-	
-	UFUNCTION()
-	void OnRegisterErrorCallback(FPlayFabError Error, UObject* CustomData);
 
 	void SignIn(const FString& Username, const FString& Password);
 
@@ -57,6 +55,18 @@ private:
 	TObjectPtr<UPlayFabClientAPI> PlayFabClientAPI;
 
 	FString ContactEmail{};
+	
+	UFUNCTION()
+	void OnRegisterSuccessCallback(FClientRegisterPlayFabUserResult Result, UObject* CustomData);
+	
+	UFUNCTION()
+	void OnRegisterErrorCallback(FPlayFabError Error, UObject* CustomData);
+
+	UFUNCTION()
+	void OnAddOrUpdateContactEmailSucceeded(FClientAddOrUpdateContactEmailResult Result, UObject* CustomData);
+
+	UFUNCTION()
+	void OnAddOrUpdateContactEmailFailed(FPlayFabError Error, UObject* CustomData);
 
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 

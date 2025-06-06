@@ -6,7 +6,6 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/WidgetSwitcher.h"
-#include "Player/NetManagerLocalPlayerSubsystem.h"
 #include "UI/AccessPortal/AccessPortalManager.h"
 #include "UI/AccessPortal/Shared/StatusLogWidget.h"
 #include "UI/AccessPortal/SignIn/SignInPage.h"
@@ -18,6 +17,7 @@ void USignInOverlay::NativeConstruct()
 
 	AccessPortalManager = NewObject<UAccessPortalManager>(this, AccessPortalManagerClass);
 	AccessPortalManager->SignUpStatusMessageDelegate.AddDynamic(this, &USignInOverlay::SignUpStatusMessage);
+	AccessPortalManager->OnSignUpSucceeded.AddDynamic(this, &USignInOverlay::ShowSignInPage);
 
 	SignInPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
 	SignInPage->Button_SignIn->OnClicked.AddDynamic(this, &USignInOverlay::SignInButtonClicked);

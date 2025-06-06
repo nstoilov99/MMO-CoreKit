@@ -4,16 +4,13 @@
 #include "UI/AccessPortal/AccessPortalManager.h"
 #include "HttpModule.h"
 #include "JsonObjectConverter.h"
-#include "PlayFab.h"
 #include "PlayFabClientAPI.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Data/API/APIData.h"
 #include "GameplayTags/MMONetManagerTags.h"
-#include "MMONetManager/MMONetManager.h"
 #include "Player/NetManagerLocalPlayerSubsystem.h"
 #include "UI/HTTP/HTTPRequestTypes.h"
 #include "PlayFabClientModels.h"
-#include "Core/PlayFabClientAPI.h"
 
 void UAccessPortalManager::SignUp(const FString& Username, const FString& Password, const FString& Email)
 {
@@ -69,24 +66,26 @@ void UAccessPortalManager::PlayFabSignUp(const FString& Username, const FString&
 	{
 		SignUpErrorMessagePopupDelegate.Broadcast("Failed to send a request!", true);
 	}
-	
-
 }
 
 void UAccessPortalManager::OnRegisterSuccessCallback(FClientRegisterPlayFabUserResult Result, UObject* CustomData)
 {
 	SignUpStatusMessageDelegate.Broadcast("Successful registration!");
+	OnSignUpSucceeded.Broadcast();
 	FClientAddOrUpdateContactEmailRequest ContactEmailRequest;
 
 	ContactEmailRequest.EmailAddress = ContactEmail;
 
-	UPlayFabClientAPI::FDelegateOnSuccessAddOrUpdateContactEmail EmailSuccessDelegate;
-	UPlayFabClientAPI::FDelegateOnFailurePlayFabError FailureDelegate;
+	UPlayFabClientAPI::FDelegateOnSuccessAddOrUpdateContactEmail UpdateContactEmailSuccessDelegate;
+	UPlayFabClientAPI::FDelegateOnFailurePlayFabError UpdateContactEmailFailureDelegate;
+
+	UpdateContactEmailSuccessDelegate.BindDynamic(this, &UAccessPortalManager::OnAddOrUpdateContactEmailSucceeded);
+	UpdateContactEmailFailureDelegate.BindDynamic(this, &UAccessPortalManager::OnAddOrUpdateContactEmailFailed);
 
 	PlayFabClientAPI = UPlayFabClientAPI::AddOrUpdateContactEmail(
 		ContactEmailRequest,
-		EmailSuccessDelegate,
-		FailureDelegate,
+		UpdateContactEmailSuccessDelegate,
+		UpdateContactEmailFailureDelegate,
 		this
 		);
 
@@ -99,6 +98,17 @@ void UAccessPortalManager::OnRegisterSuccessCallback(FClientRegisterPlayFabUserR
 void UAccessPortalManager::OnRegisterErrorCallback(FPlayFabError Error, UObject* CustomData)
 {
 	UE_LOG(LogTemp, Error, TEXT("❌ Registration failed: %s"), *Error.ErrorMessage);
+}
+
+void UAccessPortalManager::OnAddOrUpdateContactEmailSucceeded(FClientAddOrUpdateContactEmailResult Result,
+	UObject* CustomData)
+{
+	OnUpdateContactEmailSucceeded.Broadcast();
+}
+
+void UAccessPortalManager::OnAddOrUpdateContactEmailFailed(FPlayFabError Error, UObject* CustomData)
+{
+	
 }
 
 void UAccessPortalManager::SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)

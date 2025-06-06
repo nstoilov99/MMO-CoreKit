@@ -23,7 +23,7 @@ UNetManagerInstanceSubsystem::UNetManagerInstanceSubsystem()
 			}
 		}
 	}
-	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("1622B3");
+	GetMutableDefault<UPlayFabRuntimeSettings>()->TitleId = TEXT("1F5700");
 }
 
 FString UNetManagerInstanceSubsystem::GetSteamUsername() const

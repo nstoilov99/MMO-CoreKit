@@ -4,32 +4,34 @@
 #include "Components/ActorComponent.h"
 #include "SpacetimeDB/SpacetimeDBCodeGen.h"
 #include "SpacetimeDB/SpacetimeDBMacros.h"
+#include "SpacetimeDB/SpacetimeDBTypes.h"
 #include "AuthenticationSystem.generated.h"
 
 // SpacetimeDB User table equivalent in Unreal
-USTRUCT_SPACETIMEDB_TABLE(user)
+USTRUCT(BlueprintType, meta = (SpacetimeDBTable = "user"))
 struct SPACETIMEDBINTEGRATION_API FSpacetimeDBUser
 {
+    GENERATED_BODY()
 
-    UPROPERTY_SPACETIMEDB_PRIMARY_KEY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (SpacetimeDBPrimaryKey = "true"))
     FString Identity;
 
-    UPROPERTY_SPACETIMEDB_UNIQUE()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (SpacetimeDBUnique = "true"))
     FString Username;
 
-    UPROPERTY_SPACETIMEDB_FIELD()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString PasswordHash;
 
-    UPROPERTY_SPACETIMEDB_FIELD()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString Email;
 
-    UPROPERTY_SPACETIMEDB_FIELD()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FDateTime CreatedAt;
 
-    UPROPERTY_SPACETIMEDB_FIELD()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FDateTime LastLogin;
 
-    UPROPERTY_SPACETIMEDB_FIELD()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bIsActive;
 
     FSpacetimeDBUser()
@@ -48,9 +50,6 @@ struct SPACETIMEDBINTEGRATION_API FSpacetimeDBUser
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserRegistered, bool, bSuccess, const FString&, Message);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUserLoggedIn, bool, bSuccess, const FString&, Message);
 
-// Register the type for code generation
-
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPACETIMEDBINTEGRATION_API UAuthenticationSystem : public UActorComponent
 {
@@ -60,19 +59,20 @@ public:
     UAuthenticationSystem();
 
     // SpacetimeDB reducer equivalents
-    UFUNCTION_SPACETIMEDB_REDUCER(register_user)
+    UFUNCTION(BlueprintCallable, meta = (SpacetimeDBReducer = "register_user"))
     bool RegisterUser(const FString& Username, const FString& Password, const FString& Email);
 
-    UFUNCTION_SPACETIMEDB_REDUCER(login_user)
+    UFUNCTION(BlueprintCallable, meta = (SpacetimeDBReducer = "login_user"))
     bool LoginUser(const FString& Username, const FString& Password);
 
-    UFUNCTION_SPACETIMEDB_REDUCER(logout_user)
+    UFUNCTION(BlueprintCallable, meta = (SpacetimeDBReducer = "logout_user"))
     bool LogoutUser();
 
-    UFUNCTION_SPACETIMEDB_REDUCER(authenticate_user)
+    UFUNCTION()
     void HandleAuthResult(bool bSuccess, const FString& Message);
 
-    
+    // For code generation demonstration
+    UFUNCTION(BlueprintCallable, Category = "Code Generation")
     FString GenerateRustCodeForUser();
 
     UPROPERTY(BlueprintAssignable, Category = "Authentication")
@@ -86,7 +86,7 @@ protected:
 
 private:
     UPROPERTY()
-    class USpacetimeDBBridge* SpacetimeDBBridge;
+    class USpacetimeDBSubsystem* SpacetimeDBSubsystem;
 
     FString CurrentUsername;
     bool bIsLoggedIn;

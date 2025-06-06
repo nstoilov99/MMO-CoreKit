@@ -5,7 +5,7 @@
 #include "UObject/NoExportTypes.h"
 #include "SpacetimeDBTypes.generated.h"
 
-// Forward declarations for our FFI functions
+// Forward declarations for FFI functions
 extern "C" {
     struct FFIResult {
         bool success;
@@ -31,16 +31,8 @@ extern "C" {
     void spacetimedb_free_string(char* ptr);
 }
 
-// Custom metadata tags for SpacetimeDB integration
-// These are used by our code generation system
-#define SPACETIMEDB_TABLE TEXT("SpacetimeDBTable")
-#define SPACETIMEDB_REDUCER TEXT("SpacetimeDBReducer")
-#define SPACETIMEDB_PRIMARY_KEY TEXT("SpacetimeDBPrimaryKey")
-#define SPACETIMEDB_UNIQUE TEXT("SpacetimeDBUnique")
-
 /**
  * Base class for SpacetimeDB table representations
- * This provides common functionality for all SpacetimeDB-backed data
  */
 UCLASS(BlueprintType, Abstract)
 class SPACETIMEDBINTEGRATION_API USpacetimeDBTable : public UObject
@@ -50,62 +42,49 @@ class SPACETIMEDBINTEGRATION_API USpacetimeDBTable : public UObject
 public:
     USpacetimeDBTable();
     
-    // Serialization support for sending data over the network
     virtual FString SerializeToJson() const;
     virtual bool DeserializeFromJson(const FString& JsonString);
     
-    // Metadata access for code generation
     static FString GetTableName(const UClass* TableClass);
     static TArray<FString> GetPrimaryKeyFields(const UClass* TableClass);
     static TArray<FString> GetUniqueFields(const UClass* TableClass);
 };
 
 /**
- * Player data structure that mirrors our Rust Player table
- * This demonstrates how to use our custom metadata
+ * Player data structure
  */
-USTRUCT(BlueprintType, meta = (SpacetimeDBTable = "true"))
+USTRUCT(BlueprintType, meta = (SpacetimeDBTable = "game_players"))
 struct SPACETIMEDBINTEGRATION_API FSpacetimeDBPlayer
 {
     GENERATED_BODY()
 
-    /** Unique identifier for this player */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (SpacetimeDBPrimaryKey = "true"))
     int64 Id;
 
-    /** Player's display name */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString Username;
 
-    /** Player's position in the world */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FVector Position;
 
-    /** Player's rotation (yaw only for simplicity) */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Rotation;
 
-    /** Player's current level */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 Level;
 
-    /** Player's current health */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Health;
 
-    /** Player's maximum health */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float MaxHealth;
 
-    /** Whether this player is currently online */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bIsOnline;
 
-    /** Current zone or area */
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString CurrentZone;
 
-    // Constructor with default values
     FSpacetimeDBPlayer()
         : Id(0)
         , Username("")
@@ -122,7 +101,7 @@ struct SPACETIMEDBINTEGRATION_API FSpacetimeDBPlayer
 /**
  * Chat message structure
  */
-USTRUCT(BlueprintType, meta = (SpacetimeDBTable = "true"))
+USTRUCT(BlueprintType, meta = (SpacetimeDBTable = "chatmessage"))
 struct SPACETIMEDBINTEGRATION_API FSpacetimeDBChatMessage
 {
     GENERATED_BODY()
@@ -153,22 +132,18 @@ struct SPACETIMEDBINTEGRATION_API FSpacetimeDBChatMessage
 
 /**
  * Result wrapper for async operations
- * This provides a consistent way to handle success/failure in Blueprints
  */
 USTRUCT(BlueprintType)
-struct SPACETIMEDBBRIDGE_API FSpacetimeDBResult
+struct SPACETIMEDBINTEGRATION_API FSpacetimeDBResult
 {
     GENERATED_BODY()
 
-    /** Whether the operation succeeded */
     UPROPERTY(BlueprintReadOnly)
     bool bSuccess;
 
-    /** Error message if the operation failed */
     UPROPERTY(BlueprintReadOnly)
     FString ErrorMessage;
 
-    /** Optional data returned by the operation */
     UPROPERTY(BlueprintReadOnly)
     FString Data;
 
@@ -178,7 +153,6 @@ struct SPACETIMEDBBRIDGE_API FSpacetimeDBResult
         , Data("")
     {}
 
-    // Convenience constructors
     static FSpacetimeDBResult Success(const FString& InData = "")
     {
         FSpacetimeDBResult Result;
@@ -197,7 +171,7 @@ struct SPACETIMEDBBRIDGE_API FSpacetimeDBResult
 };
 
 /**
- * Enum for different connection states
+ * Connection states
  */
 UENUM(BlueprintType)
 enum class ESpacetimeDBConnectionState : uint8

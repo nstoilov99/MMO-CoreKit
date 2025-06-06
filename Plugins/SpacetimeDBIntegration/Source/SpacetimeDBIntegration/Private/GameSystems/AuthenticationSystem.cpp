@@ -1,8 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "GameSystems/AuthenticationSystem.h"
-#include "SpacetimeDB/SpacetimeDBBridge.h"
+﻿#include "GameSystems/AuthenticationSystem.h"
+#include "SpacetimeDB/SpacetimeDBSubsystem.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 
@@ -11,36 +8,32 @@ UAuthenticationSystem::UAuthenticationSystem()
     PrimaryComponentTick.bCanEverTick = false;
     bIsLoggedIn = false;
     CurrentUsername = "";
-    SpacetimeDBBridge = nullptr;
+    SpacetimeDBSubsystem = nullptr;
 }
 
 void UAuthenticationSystem::BeginPlay()
 {
     Super::BeginPlay();
     
-    // Get the SpacetimeDB bridge from the game instance
+    // Get the SpacetimeDB subsystem from the game instance
     if (UGameInstance* GameInstance = GetWorld()->GetGameInstance())
     {
-        // Try to find existing bridge or create new one
-        SpacetimeDBBridge = GameInstance->GetSubsystem<USpacetimeDBBridge>();
-        if (!SpacetimeDBBridge)
-        {
-            SpacetimeDBBridge = NewObject<USpacetimeDBBridge>(GameInstance);
-        }
+        SpacetimeDBSubsystem = GameInstance->GetSubsystem<USpacetimeDBSubsystem>();
         
         // Bind to auth events
-        if (SpacetimeDBBridge)
+        if (SpacetimeDBSubsystem)
         {
-            SpacetimeDBBridge->OnAuthResult.AddDynamic(this, &UAuthenticationSystem::HandleAuthResult);
+            SpacetimeDBSubsystem->OnUserAuthenticated.AddDynamic(this, &UAuthenticationSystem::HandleAuthResult);
+            SpacetimeDBSubsystem->OnUserRegistered.AddDynamic(this, &UAuthenticationSystem::HandleAuthResult);
         }
     }
 }
 
 bool UAuthenticationSystem::RegisterUser(const FString& Username, const FString& Password, const FString& Email)
 {
-    if (!SpacetimeDBBridge)
+    if (!SpacetimeDBSubsystem)
     {
-        UE_LOG(LogTemp, Error, TEXT("SpacetimeDB Bridge not available"));
+        UE_LOG(LogTemp, Error, TEXT("SpacetimeDB Subsystem not available"));
         OnUserRegistered.Broadcast(false, TEXT("Service unavailable"));
         return false;
     }
@@ -84,15 +77,16 @@ bool UAuthenticationSystem::RegisterUser(const FString& Username, const FString&
     // Store the username for the callback
     CurrentUsername = Username;
     
-    // Call the bridge function
-    return SpacetimeDBBridge->RegisterUser(Username, Password, Email);
+    // Call the subsystem function
+    SpacetimeDBSubsystem->RegisterUser(Username, Password, Email);
+    return true;
 }
 
 bool UAuthenticationSystem::LoginUser(const FString& Username, const FString& Password)
 {
-    if (!SpacetimeDBBridge)
+    if (!SpacetimeDBSubsystem)
     {
-        UE_LOG(LogTemp, Error, TEXT("SpacetimeDB Bridge not available"));
+        UE_LOG(LogTemp, Error, TEXT("SpacetimeDB Subsystem not available"));
         OnUserLoggedIn.Broadcast(false, TEXT("Service unavailable"));
         return false;
     }
@@ -108,13 +102,14 @@ bool UAuthenticationSystem::LoginUser(const FString& Username, const FString& Pa
     // Store the username for the callback
     CurrentUsername = Username;
     
-    // Call the bridge function
-    return SpacetimeDBBridge->LoginUser(Username, Password);
+    // Call the subsystem function
+    SpacetimeDBSubsystem->LoginUser(Username, Password);
+    return true;
 }
 
 bool UAuthenticationSystem::LogoutUser()
 {
-    if (!SpacetimeDBBridge)
+    if (!SpacetimeDBSubsystem)
     {
         return false;
     }
@@ -126,8 +121,7 @@ bool UAuthenticationSystem::LogoutUser()
         
         UE_LOG(LogTemp, Log, TEXT("User logged out"));
         
-        // Note: Add actual logout FFI call to your bridge if needed
-        // For now, we just update local state
+        SpacetimeDBSubsystem->LogoutUser();
         return true;
     }
     
@@ -156,70 +150,8 @@ void UAuthenticationSystem::HandleAuthResult(bool bSuccess, const FString& Messa
     }
 }
 
-// Example of how the macro system would generate code for the struct
-// This demonstrates the concept - in practice, this would be auto-generated
 FString UAuthenticationSystem::GenerateRustCodeForUser()
 {
-    FString RustCode = TEXT(R"(
-// Auto-generated from FSpacetimeDBUser
-#[derive(Clone, Debug)]
-#[table(name = user, public)]
-pub struct User {
-    #[primary_key]
-    pub identity: Identity,
-    
-    #[unique]
-    pub username: String,
-    
-    pub password_hash: String,
-    pub email: Option<String>,
-    pub created_at: Timestamp,
-    pub last_login: Timestamp,
-    pub is_active: bool,
-}
-
-// Auto-generated reducer from UAuthenticationSystem::RegisterUser
-#[reducer]
-pub fn register_user(
-    ctx: &ReducerContext,
-    username: String,
-    password: String,
-    email: Option<String>
-) -> Result<(), String> {
-    // Implementation would be generated based on function body analysis
-    // or user-provided templates
-    
-    // Input validation
-    if username.len() < 3 {
-        return Err("Username must be at least 3 characters".to_string());
-    }
-    
-    if password.len() < 8 {
-        return Err("Password must be at least 8 characters".to_string());
-    }
-    
-    // Check if username exists
-    if User::filter_by_username(ctx, &username).is_some() {
-        return Err("Username already taken".to_string());
-    }
-    
-    // Create user
-    let salt = generate_salt(&ctx.sender, ctx.timestamp);
-    let password_hash = hash_password(&password, &salt);
-    
-    ctx.db.user().insert(User {
-        identity: ctx.sender,
-        username,
-        password_hash,
-        email,
-        created_at: ctx.timestamp,
-        last_login: ctx.timestamp,
-        is_active: true,
-    });
-    
-    Ok(())
-}
-)");
-    
-    return RustCode;
+    // This would typically be called by the code generator
+    return USpacetimeDBCodeGen::GenerateRustCode();
 }

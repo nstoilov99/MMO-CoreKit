@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SpacetimeDBIntegration",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "nstoilov99",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "SpacetimeDBIntegration",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
